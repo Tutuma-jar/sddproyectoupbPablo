@@ -2,7 +2,7 @@
 
 - **Estado:** borrador, pendiente de la aprobación final del usuario
 - **Fecha:** 2026-10-23
-- **Origen:** [spec 001, versión 2](spec.md) y [constitución](../../docs/constitution.md)
+- **Origen:** [spec 001, versión 3](spec.md) y [constitución](../../docs/constitution.md)
 
 El usuario pidió hacer las fases 5 y 6 sin detenerse a pedir aprobación; rige
 la regla «usa tus recomendaciones». Este plan ya incorpora su autorrevisión
@@ -501,7 +501,7 @@ las secciones anteriores.
 
 | Hallazgo | Decisión | Dónde está en el plan |
 |----------|----------|------------------------|
-| H-43 | Interpretación: las anuladas no cuentan (índice único con `voided_at IS NULL`), para que RF-10.10 no impida generar la cuota correcta. Requiere confirmación del usuario. | 4.7, aviso A-1 |
+| H-43 | Las anuladas no cuentan (índice único con `voided_at IS NULL`), para que RF-10.10 no impida generar la cuota correcta. Confirmado por el usuario y recogido en RF-11.1 (spec v3) y CL-57. | 4.7, aviso A-1 |
 | H-44 | La revisión se ejecuta a las 02:00 de Bogotá y toma «hoy» del `Clock`. | D-37 |
 | H-45 | La baja siempre se fecha hoy y no hay fechas futuras, así que «activa hoy» es `ended_on IS NULL`. | 4.6 |
 | H-46 | Playwright y axe-core solo como dependencias de desarrollo, justificadas en la tabla de dependencias. | 2, D-25 |
@@ -529,5 +529,5 @@ los principios **2, 3, 4, 6 y 7** no tenían ninguno.
 Por la regla 6, estos puntos no se deciden aquí porque tocan una fase aprobada o
 una cuestión legal:
 
-- **A-1 — Interpretación de RF-11.1 (H-43):** el plan supone que una cuota anulada no cuenta como «la cuota de ese grupo y mes». Si lo confirmas, conviene añadirlo a la spec como aclaración en una versión 3.
+- **A-1 — Interpretación de RF-11.1 (H-43): resuelto.** El usuario confirmó que una cuota anulada no cuenta como «la cuota de ese grupo y mes»; la spec lo recoge en su versión 3 (RF-11.1 y CL-57).
 - **A-2 — Región de los datos (H-55):** el despliegue en Google Cloud implica una transferencia internacional de datos. Hay que confirmar con quien lleve la protección de datos de la escuela qué región es aceptable antes de desplegar.

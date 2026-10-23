@@ -2,7 +2,7 @@
 
 - **Estado:** borrador, pendiente de la aprobación final del usuario
 - **Fecha:** 2026-10-23
-- **Origen:** [spec 001, versión 2](spec.md) y [plan 001](plan.md)
+- **Origen:** [spec 001, versión 3](spec.md) y [plan 001](plan.md)
 
 ## Cómo usar esta lista
 
@@ -150,7 +150,7 @@
 - [ ] **T-18 · Cuotas mensuales (reglas)** — RF-11.1, RF-11.2, RF-11.3, RF-11.5, RF-11.6, RF-11.8; CL-18, CL-19, CL-20, CL-23, CL-48
   - Depende de: T-17
   - Archivos: `dance_school/domain/billing.py`, `tests/domain/test_billing.py`
-  - Hacer: `fees_due_for_month()`, `fee_on_enrollment()`, `fee_key()` (alumno, grupo, mes; las anuladas no cuentan, aviso A-1), `concept()`, `issued_on()`, `due_date()`.
+  - Hacer: `fees_due_for_month()`, `fee_on_enrollment()`, `fee_key()` (alumno, grupo, mes; las anuladas no cuentan, RF-11.1), `concept()`, `issued_on()`, `due_date()`.
   - Test: alta el 15 → cuota emitida el 15 con vencimiento el 25 (CL-18); alta el 16 → sin cuota ese mes (CL-19); segunda generación sin nada nuevo (CL-20); mes anterior → rechazado (CL-23); rematrícula el 10 tras baja el 5 → sin segunda cuota (CL-48); concepto con «septiembre de 2026» y grupo de 60 caracteres cabe en 100.
   - Hecho cuando: los casos pasan.
 
@@ -337,11 +337,11 @@
   - Test: [M-25], [M-26], [M-34]; cambiar la cuota no altera las generadas (CL-30); archivar con matrículas → E-21 (CL-33); desarchivar con nombre ocupado → E-18.
   - Hecho cuando: los tests pasan.
 
-- [ ] **T-44 · Matrículas** — RF-10.1, RF-10.2, RF-10.7, RF-10.9, RF-10.10, RF-11.3; CL-22, CL-31
+- [ ] **T-44 · Matrículas** — RF-10.1, RF-10.2, RF-10.7, RF-10.9, RF-10.10, RF-11.3; CL-22, CL-31, CL-57
   - Depende de: T-17, T-18, T-42, T-43
   - Archivos: `dance_school/application/enrollments.py`, `tests/application/test_enrollments.py`
   - Hacer: `enroll()` con bloqueo del grupo y cuota del mes si procede; `end_enrollment()` con anulación automática como «sistema».
-  - Test: [M-6]; moroso → confirmación [M-7]; [M-8]; dos hilos por la última plaza → una matrícula y un E-16 (CL-31); alta y baja el mismo día → cuota anulada con el motivo fijo y actor «sistema», aunque finalice Recepción (CL-22).
+  - Test: [M-6]; moroso → confirmación [M-7]; [M-8]; dos hilos por la última plaza → una matrícula y un E-16 (CL-31); alta y baja el mismo día → cuota anulada con el motivo fijo y actor «sistema», aunque finalice Recepción (CL-22); al volver a matricularlo en ese grupo el mismo mes se genera una cuota nueva (CL-57).
   - Hecho cuando: los tests pasan.
 
 - [ ] **T-45 · Generación de cuotas del mes** — RF-11.2, RF-11.4, RF-11.5; CL-20, CL-21, CL-51
@@ -581,5 +581,5 @@
 | RF-18 | T-55, T-65 |
 | RNF-1…RNF-13 | T-4, T-8 (1); T-70 (2, 3); T-69 (4, 12); T-56, T-71 (5); T-68 (6); T-73 (7, 13); T-71, T-73 (8); T-30, T-42, T-47 (9); T-72 (10); T-2, T-3 (11) |
 
-Los 56 casos límite están asignados en las cabeceras de las tareas; la
+Los 57 casos límite están asignados en las cabeceras de las tareas; la
 comprobación automática es T-67.

@@ -1,6 +1,6 @@
 # Spec 001 — MVP de la app administrativa de clientes de la escuela de danza
 
-- **Estado:** versión 2, aprobada
+- **Estado:** versión 3, aprobada
 - **Fecha:** 2026-10-23
 
 ### Historial
@@ -9,6 +9,7 @@
 |---------|-------|--------|
 | 1 | 2026-10-23 | Primera versión. Recoge las aclaraciones D-6…D-15 y resuelve las dudas abiertas D-16…D-20 (ver [`clarifications.md`](clarifications.md)). Aprobada. |
 | 2 | 2026-10-23 | Resuelve los 42 hallazgos de la revisión de QA (ver «Resoluciones» en [`qa-review.md`](qa-review.md)). Añade RF-1.16, RF-1.17, RF-2.16–RF-2.25, RF-6.11, RF-7.10, RF-7.11, RF-9.15, RF-12.7, RF-14.6, RF-15.10, RF-15.11, RF-16.8–RF-16.10, RF-18.5, RNF-13, CL-45–CL-56, M-35–M-39 y E-44–E-48. Aprobada. |
+| 3 | 2026-10-23 | Aclara en RF-11.1 que las cuotas anuladas no cuentan (aviso A-1 del [plan](plan.md), confirmado por el usuario) y añade CL-57. Aprobada. |
 
 ## 1. Contexto y objetivo
 
@@ -442,7 +443,9 @@ Las longitudes máximas de los campos están en la sección 7.
 
 - **RF-11.1** El sistema deberá generar como máximo una cuota mensual por
   alumno, grupo y mes, aunque el alumno tenga varias matrículas en ese grupo
-  dentro del mismo mes.
+  dentro del mismo mes. Las cuotas anuladas no cuentan: en este requisito, en
+  RF-11.2 y en RF-11.3, «tener la cuota de ese grupo y mes» significa tener una
+  no anulada (aviso A-1 del plan).
 - **RF-11.2** Cuando Recepción o Dirección generen las cuotas del mes en
   curso, el sistema deberá crear una cuota para cada matrícula activa el día 1
   de ese mes cuyo alumno no tenga ya la cuota de ese grupo y mes, mostrando
@@ -911,6 +914,7 @@ calculan; no se guardan.
 | CL-54 | Grupo con dos franjas el lunes, de 17:00 a 18:00 y de 17:30 a 18:30 | [E-46] (RF-9.15) |
 | CL-55 | Autorización de un alumno de 13 años sin confirmar su opinión / de uno de 8 años | [E-47] / se acepta (RF-6.11) |
 | CL-56 | Código de activación usado después de 72 horas | [E-44] (RF-2.18) |
+| CL-57 | El día 3, una matrícula creada por error se finaliza el mismo día (su cuota se anula) y el alumno se vuelve a matricular en ese grupo | Se genera una cuota nueva del mes: la anulada no cuenta (RF-10.10, RF-11.1, RF-11.3) |
 
 ## 10. Fuera de alcance
 
