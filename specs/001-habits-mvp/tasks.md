@@ -19,7 +19,7 @@
 
 ## Fase 0 — Preparación
 
-- [ ] **TA-01 · Esqueleto del proyecto y pytest** — RF: ninguno (principio 4, T-18)
+- [x] **TA-01 · Esqueleto del proyecto y pytest** — RF: ninguno (principio 4, T-18)
   - Depende de: —
   - Hacer: instalar pytest; crear `pyproject.toml` solo con
     `[tool.pytest.ini_options]` (`testpaths = ["tests"]`, `pythonpath = ["."]`);
@@ -27,7 +27,7 @@
   - Hecho cuando: `python -m pytest -q` termina con «no tests ran» (código 5)
     sin errores de importación ni de configuración.
 
-- [ ] **TA-02 · Fixtures base de las pruebas** — RF-7.5, RNF-5
+- [x] **TA-02 · Fixtures base de las pruebas** — RF-7.5, RNF-5
   - Depende de: TA-01
   - Hacer: en `tests/conftest.py`, las fixtures `today` (2026-10-23),
     `data_file` (`tmp_path/home/.habits/habits.json`, con `home` creada y
