@@ -27,3 +27,11 @@ hasta que el usuario escribe «Apruebo la fase N».
 - Commit al aprobar cada fase, en una rama de trabajo (nunca en `main`).
 - Si algo contradice una fase aprobada, se avisa al usuario en vez de decidirlo.
 - Código e identificadores en inglés; interfaz y documentación en español.
+
+## Estado
+- Fases 1-6 aprobadas el 2026-10-23: constitución, spec 001 (versión 3), revisión
+  de QA, plan y tareas (`specs/001-dance-school-mvp/`).
+- La implementación empieza por T-1 y sigue el orden de `tasks.md`; al terminar
+  cada tarea se ejecuta `pytest -q`.
+- Pendiente antes de T-71 (despliegue): aviso A-2 del plan, la región de los
+  datos, que debe validar quien lleve la protección de datos de la escuela.

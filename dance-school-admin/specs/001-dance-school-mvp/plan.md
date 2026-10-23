@@ -1,6 +1,6 @@
 # Plan 001 — MVP de la app administrativa de la escuela de danza
 
-- **Estado:** borrador, pendiente de la aprobación final del usuario
+- **Estado:** aprobado (2026-10-23)
 - **Fecha:** 2026-10-23
 - **Origen:** [spec 001, versión 3](spec.md) y [constitución](../../docs/constitution.md)
 

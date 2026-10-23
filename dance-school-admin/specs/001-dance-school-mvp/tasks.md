@@ -1,6 +1,6 @@
 # Tareas 001 — MVP de la app administrativa de la escuela de danza
 
-- **Estado:** borrador, pendiente de la aprobación final del usuario
+- **Estado:** aprobadas (2026-10-23)
 - **Fecha:** 2026-10-23
 - **Origen:** [spec 001, versión 3](spec.md) y [plan 001](plan.md)
 
