@@ -7,4 +7,4 @@ proyectos.
 | Carpeta | Proyecto | Estado |
 |---------|----------|--------|
 | [`habits-cli/`](habits-cli/AGENTS.md) | CLI en Python para registrar hábitos de estudio y rachas. | Spec, plan y tareas aprobados; implementación en curso. |
-| [`dance-school-admin/`](dance-school-admin/AGENTS.md) | App administrativa de clientes para una escuela de danza. | Planificación SDD (fase 1: constitución). |
+| [`dance-school-admin/`](dance-school-admin/AGENTS.md) | App administrativa de clientes para una escuela de danza. | Planificación SDD (constitución aprobada; fase 2: spec 001). |
