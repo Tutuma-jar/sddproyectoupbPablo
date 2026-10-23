@@ -1,6 +1,6 @@
 # Spec 001 — MVP de la app administrativa de clientes de la escuela de danza
 
-- **Estado:** versión 1, aprobada
+- **Estado:** versión 2, aprobada
 - **Fecha:** 2026-10-23
 
 ### Historial
@@ -8,6 +8,7 @@
 | Versión | Fecha | Cambio |
 |---------|-------|--------|
 | 1 | 2026-10-23 | Primera versión. Recoge las aclaraciones D-6…D-15 y resuelve las dudas abiertas D-16…D-20 (ver [`clarifications.md`](clarifications.md)). Aprobada. |
+| 2 | 2026-10-23 | Resuelve los 42 hallazgos de la revisión de QA (ver «Resoluciones» en [`qa-review.md`](qa-review.md)). Añade RF-1.16, RF-1.17, RF-2.16–RF-2.25, RF-6.11, RF-7.10, RF-7.11, RF-9.15, RF-12.7, RF-14.6, RF-15.10, RF-15.11, RF-16.8–RF-16.10, RF-18.5, RNF-13, CL-45–CL-56, M-35–M-39 y E-44–E-48. Aprobada. |
 
 ## 1. Contexto y objetivo
 
@@ -104,9 +105,12 @@ Las longitudes máximas de los campos están en la sección 7.
 
 - **RF-1.1** El sistema deberá tomar como «hoy» la fecha del calendario de
   Colombia (hora de Bogotá), leída una sola vez al empezar cada operación.
-- **RF-1.2** El sistema deberá normalizar todo texto que reciba eliminando los
-  espacios del principio y del final y sustituyendo cada secuencia de espacios
-  interiores por un único espacio.
+- **RF-1.2** El sistema deberá normalizar todo texto que reciba: llevarlo a la
+  forma Unicode compuesta (una «á» escrita con dos códigos pasa a ser un solo
+  carácter), eliminar los espacios en blanco del principio y del final y
+  sustituir cada secuencia de espacios en blanco interiores por un único
+  espacio. Es espacio en blanco cualquier carácter de espacio de Unicode,
+  incluidos el tabulador, el salto de línea y el espacio de no separación.
 - **RF-1.3** Si un campo obligatorio queda vacío tras normalizarlo, entonces el
   sistema deberá rechazarlo con [E-2].
 - **RF-1.4** Si un texto supera la longitud máxima de su campo, entonces el
@@ -114,15 +118,18 @@ Las longitudes máximas de los campos están en la sección 7.
 - **RF-1.5** Si un texto contiene caracteres de control, entonces el sistema
   deberá rechazarlo con [E-4].
 - **RF-1.6** El sistema deberá comparar los nombres sin distinguir mayúsculas,
-  minúsculas, tildes ni diéresis; la «ñ» sí se distingue de la «n» («Maria» es
-  igual a «María»; «Pena» es distinto de «Peña»).
+  minúsculas ni signos diacríticos (tildes, diéresis, «ç»…), salvo la «ñ», que
+  sí se distingue de la «n»; guiones y apóstrofos sí cuentan («Maria» es igual
+  a «María»; «Pena» es distinto de «Peña»; «Ruiz-López» es distinto de «Ruiz
+  López»).
 - **RF-1.7** El sistema deberá aceptar un teléfono cuando, tras quitar espacios,
   guiones, paréntesis y un prefijo «+57» opcional, queden exactamente 10
   dígitos, y guardarlo como esos 10 dígitos.
 - **RF-1.8** Si un teléfono no cumple RF-1.7, entonces el sistema deberá
   rechazarlo con [E-5].
-- **RF-1.9** Si un correo electrónico no tiene exactamente una «@» con texto a
-  ambos lados y al menos un punto en la parte derecha, entonces el sistema
+- **RF-1.9** Si un correo electrónico contiene espacios, no tiene exactamente
+  una «@», tiene vacía la parte izquierda o su parte derecha no está formada
+  por al menos dos partes no vacías separadas por puntos, entonces el sistema
   deberá rechazarlo con [E-6].
 - **RF-1.10** El sistema deberá manejar los importes en pesos colombianos
   enteros, sin decimales.
@@ -133,11 +140,17 @@ Las longitudes máximas de los campos están en la sección 7.
   bisiestos.
 - **RF-1.13** El sistema deberá considerar menor de edad a quien tenga menos de
   18 años cumplidos.
-- **RF-1.14** Si una fecha que no admite el futuro (firma de una autorización)
-  es posterior a hoy, entonces el sistema deberá rechazarla con [E-41].
+- **RF-1.14** Si una fecha que no admite el futuro (firma de una autorización,
+  recepción o respuesta de una solicitud) es posterior a hoy, entonces el
+  sistema deberá rechazarla con [E-41].
 - **RF-1.15** Si al guardar unos datos otra persona los ha modificado desde que
   se cargaron, entonces el sistema deberá rechazar el cambio con [E-35] sin
   guardar nada.
+- **RF-1.16** El sistema deberá guardar y comparar los correos electrónicos en
+  minúsculas.
+- **RF-1.17** El sistema deberá mostrar [M-35] junto a cada campo de texto
+  libre que no sea un nombre ni las observaciones de salud: concepto, motivo,
+  referencia y relación.
 
 ### RF-2 — Acceso y cuentas del personal (HU-1)
 
@@ -154,7 +167,9 @@ Las longitudes máximas de los campos están en la sección 7.
   a esa cuenta durante los 15 minutos siguientes, aunque la contraseña sea
   correcta.
 - **RF-2.5** Cuando una sesión cumpla 30 minutos sin actividad, el sistema
-  deberá cerrarla.
+  deberá cerrarla. Es actividad cualquier operación que la persona pide al
+  sistema (abrir una pantalla, buscar, guardar); las actualizaciones
+  automáticas de una pantalla no cuentan.
 - **RF-2.6** Cuando una persona intente usar una sesión cerrada por
   inactividad, el sistema deberá mostrarle [M-28] junto a la pantalla de inicio
   de sesión.
@@ -173,12 +188,38 @@ Las longitudes máximas de los campos están en la sección 7.
 - **RF-2.12** Cuando Dirección reactive una cuenta desactivada, el sistema
   deberá permitir de nuevo su acceso, mostrando [M-32].
 - **RF-2.13** Cuando Dirección restablezca el acceso de una cuenta, el sistema
-  deberá invalidar su contraseña y exigir que la persona defina una nueva en su
-  siguiente acceso, mostrando [M-33].
+  deberá invalidar su contraseña y su segundo factor y generar un nuevo código
+  de activación (RF-2.16), mostrando [M-33].
 - **RF-2.14** El sistema deberá asignar a cada cuenta exactamente un rol:
   Dirección, Recepción o Profesor.
 - **RF-2.15** Cuando Dirección cambie el rol de una cuenta, el sistema deberá
   aplicar el nuevo rol desde la siguiente operación de esa cuenta.
+- **RF-2.16** Cuando Dirección cree una cuenta, el sistema deberá generar para
+  ella un código de activación de un solo uso, válido durante 72 horas, que
+  solo se muestra a Dirección en [M-22] para que lo entregue en persona.
+- **RF-2.17** Cuando una persona introduzca un código de activación válido y
+  una contraseña nueva de al menos 12 caracteres, el sistema deberá guardar la
+  contraseña e invalidar el código, mostrando [M-38].
+- **RF-2.18** Si el código de activación no existe, ya se usó o ha caducado,
+  entonces el sistema deberá rechazarlo con [E-44].
+- **RF-2.19** Si la contraseña nueva tiene menos de 12 caracteres, entonces el
+  sistema deberá rechazarla con [E-45].
+- **RF-2.20** El sistema deberá reiniciar el contador de intentos fallidos de
+  una cuenta tras un acceso correcto y al terminar un bloqueo; los intentos
+  con un correo que no pertenece a ninguna cuenta no bloquean nada.
+- **RF-2.21** Cuando Dirección desbloquee una cuenta bloqueada por RF-2.4, el
+  sistema deberá permitir su acceso de inmediato y reiniciar su contador,
+  mostrando [M-37].
+- **RF-2.22** Mientras una cuenta tenga rol Dirección, el sistema deberá
+  exigirle un segundo factor de autenticación, además de la contraseña, en
+  cada inicio de sesión.
+- **RF-2.23** Si el segundo factor no es correcto, entonces el sistema deberá
+  rechazar el acceso con [E-31] y contarlo como intento fallido (RF-2.4).
+- **RF-2.24** Cuando una cuenta con rol Dirección inicie sesión sin tener
+  configurado el segundo factor, el sistema deberá exigirle configurarlo antes
+  de permitirle cualquier otra operación.
+- **RF-2.25** Cuando Dirección cierre las sesiones de una cuenta, el sistema
+  deberá cerrar todas sus sesiones abiertas, mostrando [M-39].
 
 ### RF-3 — Permisos
 
@@ -201,9 +242,10 @@ Las longitudes máximas de los campos están en la sección 7.
   tratamiento (RF-6). El correo y las observaciones de salud son opcionales.
 - **RF-4.3** Si la fecha de nacimiento es posterior a hoy o da una edad menor de
   2 años o mayor de 100, entonces el sistema deberá rechazarla con [E-7].
-- **RF-4.4** Si existe otro alumno no anonimizado con el mismo nombre, los
-  mismos apellidos (RF-1.6) y la misma fecha de nacimiento, entonces el sistema
-  deberá rechazar el alta con [E-8].
+- **RF-4.4** Si al dar de alta o editar un alumno existe otro alumno no
+  anonimizado con el mismo nombre, los mismos apellidos (RF-1.6) y la misma
+  fecha de nacimiento, entonces el sistema deberá rechazar el cambio con
+  [E-8].
 - **RF-4.5** Si el alumno es menor y no tiene ningún contacto, entonces el
   sistema deberá rechazar el alta con [E-9].
 - **RF-4.6** El sistema deberá proponer como responsable de pago de un adulto al
@@ -239,13 +281,15 @@ Las longitudes máximas de los campos están en la sección 7.
   entonces el sistema deberá rechazar el cambio con [E-9].
 - **RF-5.10** Si el contacto que se intenta desvincular es el responsable de
   pago del alumno, entonces el sistema deberá rechazar el cambio con [E-40].
-- **RF-5.11** Cuando un contacto deje de estar vinculado a algún alumno no
-  anonimizado, el sistema deberá borrar sus datos.
+- **RF-5.11** Cuando un contacto se quede sin vínculos con alumnos no
+  anonimizados, el sistema deberá borrar sus datos.
 
 ### RF-6 — Autorización de tratamiento y datos de salud (HU-4)
 
 - **RF-6.1** El sistema deberá registrar cada autorización con su fecha de
-  firma, la persona que la otorga y si incluye los datos de salud (D-14).
+  firma, el nombre completo y la relación de quien la otorga tal como constan
+  al registrarla, si incluye los datos de salud y, en menores de 12 años o
+  más, la confirmación de que se tuvo en cuenta su opinión (D-14).
 - **RF-6.2** Si se intenta dar de alta un alumno sin autorización, entonces el
   sistema deberá rechazar el alta con [E-11].
 - **RF-6.3** Si la autorización de un menor no la otorga uno de sus contactos, o
@@ -254,20 +298,25 @@ Las longitudes máximas de los campos están en la sección 7.
 - **RF-6.4** El sistema deberá considerar vigente la última autorización
   registrada de cada alumno.
 - **RF-6.5** Si se intentan guardar observaciones de salud sin que la
-  autorización vigente incluya los datos de salud, entonces el sistema deberá
-  rechazarlas con [E-13].
+  autorización vigente incluya los datos de salud, o con esa inclusión
+  revocada, entonces el sistema deberá rechazarlas con [E-13].
 - **RF-6.6** Cuando se registre una autorización que no incluye los datos de
   salud, el sistema deberá borrar las observaciones de salud del alumno.
-- **RF-6.7** Cuando un alumno cumpla 18 años, el sistema deberá marcar su
-  autorización como pendiente de renovar hasta que se registre una otorgada por
-  el propio alumno (D-16).
+- **RF-6.7** Mientras un alumno activo sea adulto y su autorización vigente la
+  haya otorgado uno de sus contactos, el sistema deberá considerar esa
+  autorización pendiente de renovar (D-16).
 - **RF-6.8** Mientras la autorización de un alumno esté pendiente de renovar, el
   sistema deberá mostrar [M-17] en su ficha.
 - **RF-6.9** Si al registrar la autorización renovada el alumno no tiene
   teléfono propio, entonces el sistema deberá rechazarla con [E-2].
 - **RF-6.10** Cuando Recepción o Dirección registren que se revoca la
-  autorización de los datos de salud, el sistema deberá borrar las
-  observaciones de salud del alumno, mostrando [M-27].
+  autorización de los datos de salud, el sistema deberá marcar como revocada
+  la inclusión de la salud en la autorización vigente y borrar las
+  observaciones de salud, mostrando [M-27]. Para volver a guardarlas hace
+  falta una autorización nueva que incluya la salud.
+- **RF-6.11** Si al registrar la autorización de un menor de 12 años o más no
+  se confirma que se tuvo en cuenta su opinión, entonces el sistema deberá
+  rechazarla con [E-47].
 
 ### RF-7 — Búsqueda, ficha y edición (HU-5)
 
@@ -281,18 +330,25 @@ Las longitudes máximas de los campos están en la sección 7.
 - **RF-7.4** Cuando Recepción o Dirección abran la ficha de un alumno, el
   sistema deberá mostrar sus datos personales, edad, estado, contactos con su
   relación y teléfono, responsable de pago, autorización vigente, matrículas
-  activas e históricas y su deuda pendiente y vencida, con las observaciones de
-  salud ocultas.
-- **RF-7.5** Cuando una cuenta autorizada pida ver las observaciones de salud de
-  un alumno, el sistema deberá mostrárselas.
+  activas e históricas y su deuda pendiente y vencida, indicando solo si tiene
+  observaciones de salud, sin su contenido.
+- **RF-7.5** Cuando Dirección pida ver las observaciones de salud de un
+  alumno, el sistema deberá mostrárselas.
 - **RF-7.6** Cuando Recepción o Dirección guarden cambios válidos en la ficha de
   un alumno activo o de baja, el sistema deberá guardarlos, mostrando [M-2].
-- **RF-7.7** El sistema deberá aplicar al editar las mismas validaciones que en
-  el alta (RF-4, RF-5 y RF-6).
+- **RF-7.7** El sistema deberá aplicar al guardar cambios las validaciones del
+  alta (RF-4 y RF-5) a los datos modificados; las de la autorización (RF-6.3 y
+  RF-6.11) solo se aplican al registrar una autorización nueva.
 - **RF-7.8** Si se intentan guardar observaciones de salud de un alumno de baja,
   entonces el sistema deberá rechazarlas con [E-14].
 - **RF-7.9** Si se intenta editar o reactivar un alumno anonimizado, entonces el
   sistema deberá rechazarlo con [E-37].
+- **RF-7.10** Mientras la autorización de un alumno esté pendiente de renovar,
+  el sistema deberá permitir guardar cambios en su ficha sin exigir su
+  teléfono propio (RF-4.8).
+- **RF-7.11** Cuando Recepción guarde las observaciones de salud de un alumno,
+  el sistema deberá sustituir el texto completo sin mostrarle el texto
+  anterior.
 
 ### RF-8 — Baja y reactivación (HU-6)
 
@@ -350,6 +406,8 @@ Las longitudes máximas de los campos están en la sección 7.
 - **RF-9.14** Cuando Recepción o Dirección consulten la lista de grupos, el
   sistema deberá mostrar de cada grupo no archivado su nombre, estilo,
   profesor, horario, plazas libres (cupo menos matrículas activas) y cuota.
+- **RF-9.15** Si dos franjas de un grupo del mismo día de la semana se
+  solapan, entonces el sistema deberá rechazarlas con [E-46].
 
 ### RF-10 — Matrículas (HU-8)
 
@@ -377,19 +435,22 @@ Las longitudes máximas de los campos están en la sección 7.
   rechazar la otra con [E-16].
 - **RF-10.10** Cuando se finalice, el mismo día de su alta, una matrícula cuya
   cuota generada al crearla no tiene pagos aplicados, el sistema deberá anular
-  esa cuota.
+  esa cuota en nombre del «sistema», con el motivo «Matrícula finalizada el
+  día de su alta», sea cual sea el rol de quien finaliza la matrícula.
 
 ### RF-11 — Cuotas mensuales y cargos (HU-9)
 
 - **RF-11.1** El sistema deberá generar como máximo una cuota mensual por
-  matrícula y mes.
-- **RF-11.2** Cuando Recepción o Dirección generen las cuotas del mes en curso,
-  el sistema deberá crear una cuota para cada matrícula activa el día 1 de ese
-  mes que aún no la tenga, mostrando [M-9].
-- **RF-11.3** Cuando se cree una matrícula entre el día 1 y el 15 de un mes, el
-  sistema deberá generar en ese momento la cuota de ese mes (D-17). Una
-  matrícula creada el día 16 o después no paga ese mes: su primera cuota es la
-  del mes siguiente (RF-11.2).
+  alumno, grupo y mes, aunque el alumno tenga varias matrículas en ese grupo
+  dentro del mismo mes.
+- **RF-11.2** Cuando Recepción o Dirección generen las cuotas del mes en
+  curso, el sistema deberá crear una cuota para cada matrícula activa el día 1
+  de ese mes cuyo alumno no tenga ya la cuota de ese grupo y mes, mostrando
+  [M-9] con el número de cuotas que ha creado esa operación.
+- **RF-11.3** Cuando se cree una matrícula entre el día 1 y el 15 de un mes y
+  el alumno no tenga ya la cuota de ese grupo y mes, el sistema deberá
+  generarla en ese momento (D-17). Una matrícula creada el día 16 o después no
+  paga ese mes: su primera cuota es la del mes siguiente (RF-11.2).
 - **RF-11.4** Cuando se generen las cuotas del mes en curso y no quede ninguna
   por crear, el sistema deberá mostrar [M-10] sin crear ninguna.
 - **RF-11.5** El sistema deberá permitir generar solo las cuotas del mes en
@@ -420,6 +481,8 @@ Las longitudes máximas de los campos están en la sección 7.
 - **RF-12.1** Cuando Recepción o Dirección registren un pago válido de un
   alumno, el sistema deberá guardarlo con su importe, fecha, medio (efectivo,
   transferencia, tarjeta u otro) y una referencia opcional, mostrando [M-14].
+  Un pago corresponde a un solo alumno: el pago conjunto de varios hermanos se
+  registra como un pago por alumno, con la misma referencia.
 - **RF-12.2** Cuando se guarde un pago, el sistema deberá aplicarlo a los cargos
   no anulados con saldo del alumno, empezando por la fecha de emisión más
   antigua y, a igual fecha, por el cargo creado antes, hasta agotar el importe.
@@ -432,6 +495,9 @@ Las longitudes máximas de los campos están en la sección 7.
 - **RF-12.6** Cuando Dirección anule un pago indicando un motivo, el sistema
   deberá devolver a cada cargo el importe que ese pago le había aplicado,
   mostrando [M-15].
+- **RF-12.7** El sistema deberá usar la fecha del pago solo como dato
+  informativo: la aplicación a cargos (RF-12.2) y la morosidad (RF-13.3)
+  dependen del momento en que se registra el pago.
 
 ### RF-13 — Estado de cuenta y morosidad (HU-11)
 
@@ -467,15 +533,21 @@ Las longitudes máximas de los campos están en la sección 7.
   observaciones de salud, sin mostrar su contenido.
 - **RF-14.5** Cuando un profesor pida ver las observaciones de salud de un
   alumno de sus grupos, el sistema deberá mostrárselas.
+- **RF-14.6** Mientras una cuenta con rol Dirección sea profesora de algún
+  grupo no archivado, el sistema deberá mostrarle en el inicio la lista de
+  esos grupos, además de lo que ve Dirección.
 
 ### RF-15 — Derechos del titular (HU-13)
 
-- **RF-15.1** Cuando Dirección exporte la ficha de un alumno, el sistema deberá
-  generar un documento legible e imprimible con todos sus datos personales,
-  contactos, autorizaciones, matrículas, cargos y pagos, mostrando [M-21].
+- **RF-15.1** Cuando Dirección exporte la ficha de un alumno, el sistema
+  deberá generar un documento imprimible con secciones fijas (datos
+  personales, contactos, autorizaciones, matrículas, cargos, pagos y
+  solicitudes), en el que figuran todos los datos guardados del alumno con su
+  etiqueta en español y los formatos de RNF-1, mostrando [M-21].
 - **RF-15.2** Cuando Dirección exporte la ficha de un contacto, el sistema
-  deberá generar un documento legible e imprimible con sus datos y los alumnos a
-  los que está vinculado, mostrando [M-21].
+  deberá generar un documento imprimible con todos sus datos guardados, los
+  alumnos a los que está vinculado y sus solicitudes, con su etiqueta en
+  español y los formatos de RNF-1, mostrando [M-21].
 - **RF-15.3** Cuando Dirección pida suprimir los datos de un alumno de baja, el
   sistema deberá pedir confirmación con [M-19].
 - **RF-15.4** Cuando se confirme la supresión, el sistema deberá anonimizar al
@@ -493,49 +565,71 @@ Las longitudes máximas de los campos están en la sección 7.
 - **RF-15.9** Si el contacto cuyos datos se intentan suprimir es responsable de
   pago de algún alumno no anonimizado, entonces el sistema deberá rechazarlo
   con [E-40].
+- **RF-15.10** Cuando Dirección registre una solicitud de un titular, el
+  sistema deberá guardar su tipo (consulta, rectificación, supresión o
+  revocación), el titular, la fecha de recepción y, cuando se responda, la
+  fecha de respuesta.
+- **RF-15.11** Si la fecha de respuesta de una solicitud es anterior a su
+  fecha de recepción, entonces el sistema deberá rechazarla con [E-48].
 
 La rectificación se hace editando la ficha (RF-7.6) y la revocación de los
-datos de salud con RF-6.10.
+datos de salud con RF-6.10. La revocación de la autorización general se
+atiende con la baja (RF-8) y la supresión (RF-15.3); si hay deuda pendiente,
+los datos se conservan hasta saldarla (RF-15.6, RF-16.6).
 
 ### RF-16 — Conservación y anonimización (HU-14)
 
 - **RF-16.1** El sistema deberá revisar los plazos de conservación una vez al
-  día.
+  día; si un día la revisión no se ejecuta, la siguiente trata todo lo
+  pendiente.
 - **RF-16.2** Mientras hayan pasado al menos 2 años desde la fecha de baja de un
   alumno no anonimizado y no tenga deuda pendiente, el sistema deberá
   anonimizarlo en la revisión diaria (D-12).
-- **RF-16.3** El sistema deberá anonimizar a un alumno sustituyendo su nombre y
-  apellidos por «Alumno anonimizado {número}», borrando su fecha de nacimiento,
-  teléfono, correo, observaciones de salud y autorizaciones, y eliminando sus
-  vínculos con contactos.
+- **RF-16.3** El sistema deberá anonimizar a un alumno sustituyendo su nombre
+  y apellidos por «Alumno anonimizado {número}», borrando su fecha de
+  nacimiento, teléfono, correo, observaciones de salud, autorizaciones y
+  solicitudes, y eliminando sus vínculos con contactos.
 - **RF-16.4** El sistema deberá conservar los cargos, los pagos y las
   matrículas de un alumno anonimizado, sin datos personales, hasta 10 años
   después de su fecha de baja.
-- **RF-16.5** Cuando pasen 10 años desde la fecha de baja de un alumno
-  anonimizado, el sistema deberá eliminar sus cargos, pagos, matrículas y su
-  propio registro.
+- **RF-16.5** Mientras hayan pasado al menos 10 años desde la fecha de baja de
+  un alumno anonimizado, el sistema deberá eliminar en la revisión diaria sus
+  cargos, pagos, matrículas y su propio registro.
 - **RF-16.6** Mientras un alumno con el plazo de 2 años vencido tenga deuda
   pendiente, el sistema deberá conservar sus datos sin anonimizar.
 - **RF-16.7** El sistema deberá eliminar las entradas de auditoría con más de 5
   años de antigüedad.
+- **RF-16.8** Mientras hayan pasado al menos 5 años desde la desactivación de
+  una cuenta, el sistema deberá sustituir en la revisión diaria su nombre por
+  «Cuenta anonimizada {número}» y borrar su correo, su credencial y su segundo
+  factor.
+- **RF-16.9** Cuando se anonimice un alumno, el sistema deberá sustituir el
+  concepto de sus cargos manuales por «Cargo manual» y borrar las referencias
+  de sus pagos y los motivos de anulación de sus cargos y pagos.
+- **RF-16.10** El sistema deberá excluir a los alumnos anonimizados de todas
+  las búsquedas, listas y fichas; sus registros económicos solo cuentan en los
+  totales.
 
 ### RF-17 — Auditoría (HU-15)
 
-- **RF-17.1** El sistema deberá registrar en la auditoría (D-4): altas, cambios,
-  bajas, reactivaciones, supresiones y anonimizaciones de alumnos y contactos;
-  vínculos y desvínculos; registro y revocación de autorizaciones; altas y
-  finalizaciones de matrículas; creación y anulación de cargos y pagos; cada
-  consulta de observaciones de salud; cada exportación de una ficha; y la
-  creación, el cambio de rol, la desactivación, la reactivación y el
-  restablecimiento de acceso de las cuentas.
+- **RF-17.1** El sistema deberá registrar en la auditoría (D-4): altas,
+  cambios, bajas, reactivaciones, supresiones y anonimizaciones de alumnos y
+  contactos; vínculos y desvínculos; registro y revocación de autorizaciones;
+  altas y finalizaciones de matrículas; creación y anulación de cargos y
+  pagos; cada consulta de observaciones de salud; cada exportación de una
+  ficha; el registro y la respuesta de solicitudes; y la creación, el cambio
+  de rol, la desactivación, la reactivación, el restablecimiento de acceso, la
+  activación, el desbloqueo, el cierre de sesiones y la anonimización de las
+  cuentas.
 - **RF-17.2** El sistema deberá guardar en cada entrada de auditoría la fecha y
   la hora, la cuenta que actúa (o «sistema»), la acción y el tipo y el número
   interno del registro afectado, sin ningún valor de datos personales.
 - **RF-17.3** Cuando Dirección consulte la auditoría filtrando por alumno, por
   cuenta o por rango de fechas, el sistema deberá mostrar las entradas que
   cumplan el filtro, de la más reciente a la más antigua.
-- **RF-17.4** El sistema deberá impedir que se modifique o borre una entrada de
-  auditoría, salvo la eliminación por plazo de RF-16.7.
+- **RF-17.4** El sistema deberá impedir a toda cuenta, sea cual sea su rol,
+  modificar o borrar una entrada de auditoría; solo la revisión diaria elimina
+  las de más de 5 años (RF-16.7).
 - **RF-17.5** Si no se puede escribir la entrada de auditoría de una operación,
   entonces el sistema deberá cancelar la operación entera con [E-36].
 
@@ -550,6 +644,9 @@ datos de salud con RF-6.10.
   número de alumnos morosos y la deuda vencida total.
 - **RF-18.4** Mientras haya alumnos en la situación de RF-16.6, el sistema
   deberá mostrar [M-30] en el inicio de Dirección.
+- **RF-18.5** Mientras haya solicitudes de titulares sin responder, el sistema
+  deberá mostrar [M-36] en el inicio de Dirección, con los días naturales
+  transcurridos desde la recepción de cada una.
 
 El inicio de un profesor es la lista de sus grupos (RF-14.1).
 
@@ -559,11 +656,12 @@ El inicio de un profesor es la lista de sus grupos (RF-14.1).
 
 | Acción | RF | Dirección | Recepción | Profesor |
 |--------|----|-----------|-----------|----------|
-| Crear cuentas, cambiar su rol, desactivarlas, reactivarlas y restablecer su acceso | RF-2.7–RF-2.15 | Sí | No | No |
+| Crear cuentas, cambiar su rol, desactivarlas, reactivarlas, restablecer su acceso, desbloquearlas y cerrar sus sesiones | RF-2.7–RF-2.16, RF-2.21, RF-2.25 | Sí | No | No |
 | Buscar y listar alumnos | RF-7.1–RF-7.3 | Sí | Sí | No |
 | Ver la ficha completa de un alumno | RF-7.4 | Sí | Sí | No |
 | Ver los alumnos de un grupo con edad y contactos | RF-14.3 | Sí, todos los grupos | Sí, todos los grupos | Solo sus grupos |
-| Ver observaciones de salud | RF-7.5, RF-14.5 | Sí | Sí | Solo alumnos de sus grupos |
+| Ver observaciones de salud | RF-7.5, RF-14.5 | Sí | No | Solo alumnos de sus grupos |
+| Escribir o sustituir observaciones de salud, sin ver las anteriores | RF-6.5, RF-7.11 | Sí | Sí | No |
 | Dar de alta y editar alumnos y contactos; vincular y desvincular | RF-4, RF-5, RF-7.6 | Sí | Sí | No |
 | Registrar autorizaciones y revocar la de salud | RF-6 | Sí | Sí | No |
 | Dar de baja y reactivar alumnos | RF-8 | Sí | Sí | No |
@@ -577,8 +675,12 @@ El inicio de un profesor es la lista de sus grupos (RF-14.1).
 | Ver estados de cuenta y el listado de morosos | RF-13 | Sí | Sí | No |
 | Exportar fichas de titulares | RF-15.1, RF-15.2 | Sí | No | No |
 | Suprimir datos a petición del titular | RF-15.3–RF-15.9 | Sí | No | No |
+| Registrar y responder solicitudes de titulares | RF-15.10, RF-15.11 | Sí | No | No |
 | Consultar la auditoría | RF-17.3 | Sí | No | No |
-| Ver los avisos del inicio | RF-18 | Sí | Sí, salvo RF-18.4 | No |
+| Ver los avisos del inicio | RF-18 | Sí | Sí, salvo RF-18.4 y RF-18.5 | No |
+
+La anulación automática de RF-10.10 la hace el «sistema», no la cuenta que
+finaliza la matrícula, así que no exige el permiso de anular cargos.
 
 ## 6. Mensajes
 
@@ -607,8 +709,8 @@ El inicio de un profesor es la lista de sus grupos (RF-14.1).
 | M-18 | Teléfono repetido (RF-5.6) | `Ya existe un contacto con este teléfono: {nombre completo del contacto}. ¿Quieres vincular ese contacto?` |
 | M-19 | Confirmar supresión (RF-15.3) | `Se anonimizarán de forma irreversible los datos personales de {nombre completo}. Los registros económicos se conservan sin datos personales. ¿Continuar?` |
 | M-20 | Supresión hecha (RF-15.4) | `Datos suprimidos. El registro queda como {alias}.` |
-| M-21 | Ficha exportada (RF-15.1, RF-15.2) | `Ficha exportada.` |
-| M-22 | Cuenta creada (RF-2.7) | `Cuenta creada para {nombre} con rol {rol}.` |
+| M-21 | Ficha exportada (RF-15.1, RF-15.2) | `Ficha exportada. Entrégala solo al titular o a su representante y no guardes copias.` |
+| M-22 | Cuenta creada (RF-2.7, RF-2.16) | `Cuenta creada para {nombre} con rol {rol}. Código de activación: {código} (válido 72 horas).` |
 | M-23 | Cuenta desactivada (RF-2.9) | `Cuenta desactivada: {nombre}.` |
 | M-24 | Búsqueda sin resultados (RF-7.3) | `No hay alumnos que coincidan con la búsqueda.` |
 | M-25 | Grupo creado (RF-9.1) | `Grupo creado: {grupo}.` |
@@ -619,8 +721,13 @@ El inicio de un profesor es la lista de sus grupos (RF-14.1).
 | M-30 | Conservación retenida por deuda (RF-18.4) | `{n} alumnos han superado el plazo de conservación, pero no se pueden anonimizar porque tienen deuda pendiente.` |
 | M-31 | Contacto suprimido (RF-15.7) | `Datos del contacto suprimidos.` |
 | M-32 | Cuenta reactivada (RF-2.12) | `Cuenta reactivada: {nombre}.` |
-| M-33 | Acceso restablecido (RF-2.13) | `Acceso restablecido: {nombre} deberá definir una nueva contraseña al entrar.` |
+| M-33 | Acceso restablecido (RF-2.13) | `Acceso restablecido para {nombre}. Nuevo código de activación: {código} (válido 72 horas).` |
 | M-34 | Grupo desarchivado (RF-9.12) | `Grupo desarchivado: {grupo}.` |
+| M-35 | Aviso en campos de texto libre (RF-1.17) | `No escribas aquí datos personales ni de salud.` |
+| M-36 | Solicitudes sin responder (RF-18.5) | `Solicitudes de titulares sin responder: {n}. La Ley 1581 da 10 días hábiles para las consultas y 15 para los reclamos.` |
+| M-37 | Cuenta desbloqueada (RF-2.21) | `Cuenta desbloqueada: {nombre}.` |
+| M-38 | Contraseña definida (RF-2.17) | `Contraseña guardada. Ya puedes iniciar sesión.` |
+| M-39 | Sesiones cerradas (RF-2.25) | `Se han cerrado todas las sesiones de {nombre}.` |
 | E-1 | Sin permiso (RF-3.2) | `No tienes permiso para realizar esta acción.` |
 | E-2 | Campo obligatorio vacío (RF-1.3, RF-6.9) | `Este campo es obligatorio.` |
 | E-3 | Texto demasiado largo (RF-1.4) | `Máximo {n} caracteres.` |
@@ -638,7 +745,7 @@ El inicio de un profesor es la lista de sus grupos (RF-14.1).
 | E-15 | Ya matriculado (RF-10.3) | `{nombre completo} ya tiene una matrícula activa en {grupo}.` |
 | E-16 | Grupo lleno (RF-10.4, RF-10.9) | `El grupo {grupo} no tiene plazas libres.` |
 | E-17 | Grupo archivado (RF-10.5) | `El grupo {grupo} está archivado.` |
-| E-18 | Nombre de grupo repetido (RF-9.3, RF-9.13) | `Ya existe un grupo activo llamado {grupo}.` |
+| E-18 | Nombre de grupo repetido (RF-9.3, RF-9.13) | `Ya existe un grupo sin archivar llamado {grupo}.` |
 | E-19 | Franja no válida (RF-9.5) | `La hora de fin debe ser posterior a la de inicio.` |
 | E-20 | Cupo menor que las matrículas (RF-9.9) | `El cupo no puede ser menor que las {n} matrículas activas.` |
 | E-21 | Archivar con matrículas (RF-9.11) | `No se puede archivar un grupo con matrículas activas.` |
@@ -650,8 +757,8 @@ El inicio de un profesor es la lista de sus grupos (RF-14.1).
 | E-27 | Suprimir con deuda (RF-15.6) | `No se pueden suprimir los datos de un alumno con deuda pendiente.` |
 | E-28 | Suprimir a un alumno activo (RF-15.5) | `Da de baja al alumno antes de suprimir sus datos.` |
 | E-29 | Última cuenta de Dirección (RF-2.10) | `Debe quedar al menos una cuenta activa con rol Dirección.` |
-| E-30 | Cuenta con grupos (RF-2.11) | `{nombre} es profesor de grupos activos. Reasígnalos antes de continuar.` |
-| E-31 | Acceso incorrecto (RF-2.3) | `Correo o contraseña incorrectos.` |
+| E-30 | Cuenta con grupos (RF-2.11) | `{nombre} es profesor de grupos sin archivar. Reasígnalos antes de continuar.` |
+| E-31 | Acceso incorrecto (RF-2.3, RF-2.23) | `Correo o contraseña incorrectos.` |
 | E-32 | Cuenta bloqueada (RF-2.4) | `Cuenta bloqueada temporalmente por intentos fallidos. Inténtalo de nuevo en 15 minutos.` |
 | E-33 | Correo de cuenta repetido (RF-2.8) | `Ya existe una cuenta con ese correo.` |
 | E-34 | Número de franjas (RF-9.4) | `El horario debe tener entre 1 y 7 franjas.` |
@@ -664,6 +771,11 @@ El inicio de un profesor es la lista de sus grupos (RF-14.1).
 | E-41 | Fecha futura (RF-1.14) | `La fecha no puede ser posterior a hoy.` |
 | E-42 | Cupo no válido (RF-9.6) | `El cupo debe ser un número entero entre 1 y 100.` |
 | E-43 | Profesor no válido (RF-9.7) | `Elige como profesor una cuenta activa con rol Profesor o Dirección.` |
+| E-44 | Código de activación no válido (RF-2.18) | `El código de activación no es válido o ha caducado. Pide uno nuevo a Dirección.` |
+| E-45 | Contraseña corta (RF-2.19) | `La contraseña debe tener al menos 12 caracteres.` |
+| E-46 | Franjas solapadas (RF-9.15) | `Dos franjas del mismo día no pueden solaparse.` |
+| E-47 | Falta la opinión del menor (RF-6.11) | `Confirma que se tuvo en cuenta la opinión del menor.` |
+| E-48 | Respuesta anterior a la recepción (RF-15.11) | `La fecha de respuesta no puede ser anterior a la de recepción.` |
 
 ## 7. Datos que se guardan
 
@@ -678,7 +790,10 @@ fotografías ni documentos escaneados.
 | Cuenta | Credencial (nunca la contraseña legible) | Sí | — | RF-2.2, RNF-5 |
 | Cuenta | Rol | Sí | Dirección, Recepción o Profesor | RF-2.14 |
 | Cuenta | Activa | Sí | sí / no | RF-2.9 |
-| Cuenta | Intentos fallidos y fin del bloqueo | No | — | RF-2.4 |
+| Cuenta | Intentos fallidos y fin del bloqueo | No | — | RF-2.4, RF-2.20 |
+| Cuenta | Código de activación (nunca legible) y su caducidad | No | 72 horas | RF-2.16 |
+| Cuenta | Segundo factor (solo rol Dirección) | Sí en Dirección | — | RF-2.22 |
+| Cuenta | Fecha de desactivación | No | — | RF-16.8 |
 | Alumno | Número interno | Sí | — | RF-16.3, RF-17.2 |
 | Alumno | Nombre / Apellidos | Sí | 60 caracteres cada uno | RF-4.2 |
 | Alumno | Fecha de nacimiento | Sí | — | RF-1.12, RF-4.3 |
@@ -692,7 +807,8 @@ fotografías ni documentos escaneados.
 | Contacto | Teléfono | Sí | 10 dígitos | RF-5.2, RF-14.3 |
 | Contacto | Correo | No | 254 caracteres | RF-5.2 |
 | Vínculo | Alumno, contacto y relación | Sí | relación: 30 caracteres | RF-5.2 |
-| Autorización | Alumno, fecha de firma, otorgante, incluye salud | Sí | — | RF-6.1 |
+| Autorización | Alumno, fecha de firma, nombre completo y relación del otorgante, incluye salud | Sí | — | RF-6.1 |
+| Autorización | Opinión del menor tenida en cuenta | Sí en menores de 12 años o más | sí | RF-6.11 |
 | Autorización | Revocación de salud (fecha) | No | — | RF-6.10 |
 | Grupo | Nombre | Sí | 60 caracteres | RF-9.2 |
 | Grupo | Estilo | Sí | 40 caracteres | RF-9.2 |
@@ -703,13 +819,15 @@ fotografías ni documentos escaneados.
 | Franja | Grupo, día de la semana, hora de inicio, hora de fin | Sí | 1–7 por grupo | RF-9.2 |
 | Matrícula | Alumno, grupo, fecha de alta | Sí | — | RF-10.1 |
 | Matrícula | Fecha de baja | No | — | RF-10.7 |
-| Cargo | Alumno, tipo (cuota mensual o manual), concepto, importe, fecha de emisión | Sí | concepto: 80 caracteres | RF-11.6, RF-11.7 |
-| Cargo | Matrícula y mes (solo cuotas mensuales) | Sí en cuotas | — | RF-11.1 |
+| Cargo | Alumno, tipo (cuota mensual o manual), concepto, importe, fecha de emisión | Sí | concepto: 100 caracteres | RF-11.6, RF-11.7 |
+| Cargo | Matrícula, grupo y mes (solo cuotas mensuales) | Sí en cuotas | — | RF-11.1 |
 | Cargo | Anulación: fecha, cuenta y motivo | No | motivo: 200 caracteres | RF-11.11 |
 | Pago | Alumno, importe, fecha, medio | Sí | — | RF-12.1 |
 | Pago | Referencia | No | 50 caracteres | RF-12.1 |
 | Pago | Anulación: fecha, cuenta y motivo | No | motivo: 200 caracteres | RF-12.6 |
 | Aplicación | Pago, cargo e importe aplicado | Sí | — | RF-12.2 |
+| Solicitud | Titular, tipo, fecha de recepción | Sí | consulta, rectificación, supresión o revocación | RF-15.10 |
+| Solicitud | Fecha de respuesta | No | — | RF-15.10, RF-15.11 |
 | Auditoría | Fecha y hora, cuenta o «sistema», acción, tipo y número del registro | Sí | — | RF-17.2 |
 
 El vencimiento, el saldo, el estado de un cargo, la edad y la deuda se
@@ -721,16 +839,17 @@ calculan; no se guardan.
 |----|-----------|------------------|
 | RNF-1 | **Idioma y formatos:** todo lo que ve el personal está en español. Fechas `dd/mm/aaaa`; importes `$ 1.250.000`; teléfonos `300 123 4567`; meses `octubre de 2026`. | Tests de las funciones de formato; revisión de que todos los textos están en la sección 6. |
 | RNF-2 | **Capacidad:** 1.000 alumnos (contando los de baja), 2.000 contactos, 50 grupos, 20 cuentas, 5 años de cargos y pagos (unos 60.000 cargos) y 10 personas usando la app a la vez (D-15). | Prueba de carga con datos ficticios generados de ese volumen. |
-| RNF-3 | **Rapidez:** con el volumen de RNF-2 y 10 personas a la vez, el 95 % de las operaciones responde en menos de 1 segundo y ninguna en más de 3; generar las cuotas del mes tarda menos de 10 segundos. | La misma prueba de carga, en el entorno de pruebas, midiendo los percentiles. |
+| RNF-3 | **Rapidez:** con el volumen de RNF-2 y 10 personas a la vez repartiéndose a partes iguales buscar alumnos, abrir una ficha, registrar un pago, matricular, ver el listado de morosos y abrir un grupo como profesor, el 95 % de esas operaciones responde en menos de 1 segundo y ninguna en más de 3; generar las cuotas del mes tarda menos de 10 segundos. | La misma prueba de carga, en el entorno de pruebas, midiendo los percentiles. |
 | RNF-4 | **Dispositivos:** las pantallas de Dirección y Recepción se usan en un ordenador de 1280 px de ancho o más; las del profesor (RF-14) también en un teléfono de 360 px de ancho, sin desplazamiento horizontal. | Prueba automatizada de las pantallas en ambos anchos. |
 | RNF-5 | **Seguridad del acceso:** toda comunicación con la app va cifrada; las contraseñas tienen al menos 12 caracteres y solo se guarda su resumen criptográfico; la sesión y el bloqueo siguen RF-2.4 y RF-2.5. | Tests de RF-2; revisión de la configuración de despliegue (principio 8). |
 | RNF-6 | **Registros técnicos sin datos personales:** los registros técnicos y los mensajes de error no contienen nombres, teléfonos, correos, fechas de nacimiento ni observaciones de salud. | Test que recorre los flujos principales con datos ficticios y busca esos valores en los registros generados. |
 | RNF-7 | **Datos de prueba ficticios:** ningún dato real sale del entorno de producción; las pruebas usan datos ficticios del repositorio. | Revisión de las fixtures y del procedimiento de copias (principio 8). |
-| RNF-8 | **Copias de seguridad:** diaria, cifrada, conservada 30 días; pérdida máxima de 24 horas de datos; restauración completa en menos de 4 horas, probada cada trimestre (D-5). | Registro de cada prueba de restauración con su fecha y duración. |
+| RNF-8 | **Copias de seguridad:** diaria, cifrada, conservada 30 días; pérdida máxima de 24 horas de datos; restauración completa en menos de 4 horas, probada cada trimestre (D-5). Tras restaurar, se ejecuta la revisión de plazos (RF-16.1) antes de abrir la app y Dirección repite las supresiones a petición posteriores a la copia, a partir de las respuestas enviadas a los titulares. | Registro de cada prueba de restauración con su fecha, su duración y la comprobación de que se ejecutó la revisión de plazos. |
 | RNF-9 | **Integridad:** cada operación se guarda entera o no se guarda nada; en particular, un pago con sus aplicaciones, una baja con sus matrículas y su borrado de salud, y cualquier operación con su entrada de auditoría. | Tests que fuerzan un fallo a mitad de cada una de esas operaciones y comprueban que no cambió nada. |
 | RNF-10 | **Disponibilidad:** la app está disponible el 99 % del horario de apertura (lunes a sábado, de 7:00 a 21:00, hora de Bogotá) de cada mes, sin contar paradas programadas avisadas con 48 horas. | Monitor externo que comprueba la app cada 5 minutos; informe mensual. |
 | RNF-11 | **Verificabilidad:** las pruebas pueden fijar la fecha y la hora de «hoy» y usar datos ficticios aislados en cualquier operación (principio 4). | Existe al menos un test por RF que fija la fecha. |
 | RNF-12 | **Accesibilidad básica:** todos los campos tienen etiqueta y todos los formularios se pueden completar solo con el teclado. | Revisión automática de accesibilidad sin errores de nivel A de WCAG 2.1, y prueba manual con teclado. |
+| RNF-13 | **Nada guardado en el dispositivo:** las pantallas no guardan datos personales en el dispositivo para usarlos sin conexión; al cerrar la sesión no queda ningún dato personal accesible en él. | Revisión registrada en un teléfono y un ordenador de prueba tras cerrar la sesión. |
 
 ## 9. Casos límite
 
@@ -780,6 +899,18 @@ calculan; no se guardan.
 | CL-42 | Quinto intento fallido de acceso | Bloqueo de 15 minutos, aunque luego la contraseña sea correcta (RF-2.4) |
 | CL-43 | Alumno adulto cuyas cuotas paga su padre | El padre es su contacto y su responsable de pago (RF-4.6) |
 | CL-44 | La directora también da clase | Puede ser profesora de un grupo con su cuenta de Dirección (RF-9.2) |
+| CL-45 | Alta de «Ana Ruiz-López» existiendo «Ana Ruiz López» con la misma fecha de nacimiento | Se permite: el guion cuenta (RF-1.6) |
+| CL-46 | Cuenta nueva con «Ana@Escuela.co» existiendo «ana@escuela.co» | [E-33] (RF-1.16, RF-2.8) |
+| CL-47 | Pago registrado hoy con fecha de hace 20 días, anterior a la emisión de un cargo | Se aplica igualmente a ese cargo; la fecha es solo informativa (RF-12.2, RF-12.7) |
+| CL-48 | Matrícula finalizada el día 5 y nueva matrícula en el mismo grupo el día 10 | No se genera una segunda cuota de ese grupo y mes (RF-11.1, RF-11.3) |
+| CL-49 | Una madre que baila y es tutora de su hijo | Tiene un registro de alumno y otro de contacto, sin relación entre ellos (sección 10) |
+| CL-50 | Una transferencia paga las cuotas de dos hermanos | Se registran dos pagos, uno por alumno, con la misma referencia (RF-12.1) |
+| CL-51 | Dos personas generan las cuotas del mes a la vez | Cada cuota se crea una sola vez; cada persona ve en [M-9] las que creó su operación, o [M-10] si no quedaba ninguna (RF-11.1, RF-11.2, RF-11.4) |
+| CL-52 | Reactivar a un alumno que se dio de baja siendo menor y ya es adulto | La autorización nueva la otorga el propio alumno y debe tener teléfono propio; sus tutores quedan como contactos de emergencia (RF-5.4, RF-6.3, RF-8.8) |
+| CL-53 | Recepción edita las observaciones de salud de un alumno que ya tenía | No ve el texto anterior; el nuevo lo sustituye entero (RF-7.11) |
+| CL-54 | Grupo con dos franjas el lunes, de 17:00 a 18:00 y de 17:30 a 18:30 | [E-46] (RF-9.15) |
+| CL-55 | Autorización de un alumno de 13 años sin confirmar su opinión / de uno de 8 años | [E-47] / se acepta (RF-6.11) |
+| CL-56 | Código de activación usado después de 72 horas | [E-44] (RF-2.18) |
 
 ## 10. Fuera de alcance
 
@@ -795,6 +926,8 @@ calculan; no se guardan.
 - Nómina y horas de los profesores.
 - Importación de datos desde hojas de cálculo u otros sistemas.
 - Varias sedes y otros idiomas distintos del español.
+- Unificar en un solo registro a una persona que es a la vez alumno y contacto (H-20).
+- Calcular los plazos legales de las solicitudes en días hábiles (H-31).
 
 ## 11. Criterios de finalización
 
@@ -805,8 +938,9 @@ El MVP está terminado cuando:
 2. cada fila de la matriz de permisos tiene un test que comprueba que los roles
    con «No» reciben [E-1] sin ver datos (principio 7);
 3. todos los textos que ve el personal coinciden con la sección 6;
-4. cada RNF se ha verificado con el método de la sección 8 y el resultado está
-   registrado;
+4. cada RNF se ha verificado con el método de la sección 8 (prueba o revisión
+   registrada) y el resultado está registrado, salvo RNF-10, que se mide
+   durante el primer mes en producción;
 5. la comprobación principio por principio del plan no tiene incumplimientos;
 6. la revisión de QA de esta spec no tiene hallazgos sin resolver.
 

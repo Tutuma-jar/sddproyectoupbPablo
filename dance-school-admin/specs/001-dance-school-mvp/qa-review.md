@@ -3,8 +3,9 @@
 - **Documento revisado:** spec 001, versión 1 (aprobada el 2026-10-23)
 - **Referencia:** [constitución](../../docs/constitution.md) y [aclaraciones](clarifications.md)
 - **Fecha de la revisión:** 2026-10-23
-- **Alcance:** solo detección, sin proponer soluciones. Las resoluciones se
-  añadirán en la fase 4.
+- **Alcance:** las secciones 1 a 7 solo detectan, sin proponer soluciones. Las
+  resoluciones (fase 4) están en la sección 8 y se aplican en la versión 2 de
+  la spec.
 
 Los números de requisito (RF-x.y, RNF-x, CL-x, M-x, E-x) se refieren a la
 **versión 1** de la spec.
@@ -77,3 +78,54 @@ Los principios **1** (stack simple), **2** (spec antes que código), **3**
 afectan a los principios **7** (H-26) y **8** (H-27, H-28); H-28 nace de las
 copias que exige el principio 5, pero el conflicto es con el borrado del
 principio 8.
+
+## 8. Resoluciones
+
+Decididas con la regla «usa tus recomendaciones». Los «Dónde» se refieren a la
+**versión 2** de la spec. Ninguna resolución contradice la constitución ni las
+decisiones D-1…D-20 ya aprobadas.
+
+| Hallazgo | Decisión | Dónde está en la spec |
+|----------|----------|------------------------|
+| H-1 | Todo texto se lleva a la forma Unicode compuesta y se define «espacio en blanco» como cualquier espacio de Unicode. | RF-1.2 |
+| H-2 | Se ignoran todos los diacríticos salvo la «ñ»; guiones y apóstrofos sí distinguen. | RF-1.6, CL-45 |
+| H-3 | Regla de correo más estricta (sin espacios, dominio con partes no vacías); los correos se guardan y comparan en minúsculas. | RF-1.9, RF-1.16, CL-46 |
+| H-4 | Dirección recibe un código de activación de un solo uso (72 horas) que entrega en persona; con él se define una contraseña de al menos 12 caracteres. Motivo: no exige enviar correos, que están fuera de alcance. | RF-2.13, RF-2.16–RF-2.19, M-22, M-33, M-38, E-44, E-45, CL-56 |
+| H-5 | El contador se reinicia tras un acceso correcto y al terminar el bloqueo; los correos inexistentes no bloquean nada. | RF-2.20 |
+| H-6 | Se define «actividad» como toda operación pedida por la persona; las actualizaciones automáticas no cuentan. | RF-2.5 |
+| H-7 | Una cuenta de Dirección que da clase ve todo lo de Dirección y, además, la lista de sus grupos en el inicio. | RF-14.6 |
+| H-8 | La comprobación de duplicados se aplica también al editar. | RF-4.4 |
+| H-9 | Se reescribe: el contacto se borra cuando se queda sin vínculos con alumnos no anonimizados. | RF-5.11 |
+| H-10 | La renovación pendiente pasa a ser un estado calculado con la fecha de hoy (sin evento) y solo afecta a alumnos activos; los de baja se tratan al reactivar (H-24). | RF-6.7 |
+| H-11 | La revocación marca como revocada la inclusión de salud en la autorización vigente; volver a guardar observaciones exige una autorización nueva con salud. | RF-6.5, RF-6.10 |
+| H-12 | Dos franjas del mismo día de un grupo no pueden solaparse; las horas son libres (hh:mm). | RF-9.15, E-46, CL-54 |
+| H-13 | Los mensajes usan «sin archivar», igual que los RF. | E-18, E-30 |
+| H-14 | RF-16.5 pasa a ser un estado («Mientras…») y la revisión diaria trata lo pendiente de los días en que no se ejecutó. | RF-16.1, RF-16.5 |
+| H-15 | El límite del concepto sube a 100 caracteres (el máximo de una cuota es 87). | Sección 7 |
+| H-16 | La anulación automática la hace el «sistema» con un motivo fijo, sin exigir el permiso de anular cargos. | RF-10.10, sección 5 |
+| H-17 | Al editar solo se validan los datos modificados; las reglas de la autorización se aplican al registrar una nueva, y con la autorización pendiente de renovar no se exige teléfono propio. | RF-7.7, RF-7.10 |
+| H-18 | La fecha del pago es solo informativa: la aplicación y la morosidad dependen de cuándo se registra. Motivo: mantener una sola regla de aplicación, fácil de probar. | RF-12.7, CL-47 |
+| H-19 | Como máximo una cuota por alumno, grupo y mes, aunque haya varias matrículas. | RF-11.1–RF-11.3, CL-48 |
+| H-20 | Se acepta la limitación: alumno y contacto son registros distintos aunque sean la misma persona; unificarlos queda fuera de alcance. | Sección 10, CL-49 |
+| H-21 | La autorización guarda una copia del nombre y la relación de quien la otorga, que no depende de que el contacto siga existiendo. | RF-6.1, sección 7 |
+| H-22 | Un pago es de un solo alumno; el pago conjunto se registra como un pago por alumno con la misma referencia. | RF-12.1, CL-50 |
+| H-23 | Cada operación informa solo de las cuotas que creó ella; si no quedaba ninguna, muestra [M-10]. | RF-11.2, CL-51 |
+| H-24 | Al reactivar se aplican las reglas actuales: si ya es adulto, autoriza él mismo y debe tener teléfono propio; sus tutores quedan como contactos de emergencia. | CL-52 (RF-5.4, RF-6.3, RF-8.8) |
+| H-25 | Las cuentas desactivadas se anonimizan a los 5 años de su desactivación, igual que el plazo de la auditoría que las referencia. | RF-16.8, sección 7 |
+| H-26 | Recepción puede escribir o sustituir las observaciones de salud, pero no verlas; las ven Dirección y el profesor de sus grupos. | RF-7.4, RF-7.5, RF-7.11, sección 5, CL-53 |
+| H-27 | Al anonimizar se sustituye el concepto de los cargos manuales y se borran referencias y motivos; los campos de texto libre muestran un aviso para no escribir datos personales. | RF-1.17, RF-16.9, M-35 |
+| H-28 | Tras restaurar una copia se ejecuta la revisión de plazos antes de abrir la app y Dirección repite las supresiones posteriores a la copia. Riesgo residual aceptado: depende de las respuestas guardadas fuera del sistema. | RNF-8 |
+| H-29 | El aviso de la exportación pide entregarla solo al titular y no guardar copias; queda en la auditoría (RF-17.1). | M-21 |
+| H-30 | La revocación general se atiende con la baja y la supresión; con deuda, los datos se conservan hasta saldarla. | Nota al final de RF-15 |
+| H-31 | Registro de solicitudes de titulares (tipo, fechas de recepción y respuesta) con aviso en el inicio de Dirección; el cálculo en días hábiles queda fuera de alcance. | RF-15.10, RF-15.11, RF-18.5, M-36, E-48, sección 7, sección 10 |
+| H-32 | Riesgo aceptado: el bloqueo de 15 minutos limita la fuerza bruta. Para acotar el abuso, Dirección puede desbloquear una cuenta al momento. | RF-2.21, M-37 |
+| H-33 | Las cuentas de Dirección exigen un segundo factor de autenticación. | RF-2.22–RF-2.24, sección 7 |
+| H-34 | No se guardan datos personales en el dispositivo y Dirección puede cerrar todas las sesiones de una cuenta (por ejemplo, si se pierde un teléfono). | RNF-13, RF-2.25, M-39 |
+| H-35 | Los alumnos anonimizados quedan fuera de toda búsqueda, lista y ficha; solo cuentan en los totales. | RF-16.10 |
+| H-36 | En menores de 12 años o más, la autorización exige confirmar que se tuvo en cuenta su opinión. Motivo: a partir de los 12 años la normativa colombiana considera adolescente al menor; conviene validarlo con quien lleve la protección de datos. | RF-6.1, RF-6.11, E-47, sección 7, CL-55 |
+| H-37 | Se fija el contenido de la exportación: secciones fijas y todos los datos guardados con su etiqueta. | RF-15.1, RF-15.2 |
+| H-38 | La garantía se acota a las cuentas de la app, de cualquier rol. | RF-17.4 |
+| H-39 | Se define la mezcla de operaciones de la prueba de carga. | RNF-3 |
+| H-40 | La sección 11 admite la verificación por revisión registrada donde la sección 8 la indica. | Sección 11 |
+| H-41 | RNF-10 se mide durante el primer mes en producción y no bloquea el fin del MVP. | Sección 11 |
+| H-42 | Resuelto con H-6. | RF-2.5 |
